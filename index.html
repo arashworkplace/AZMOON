@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>آزمون شبیه‌ساز ادغام بلاک عفونی ۲</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --primary: #0f4c81;
+      --primary-light: #e0f2fe;
+      --accent: #0284c7;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #cbd5e1;
+      --success: #15803d;
+      --success-bg: #dcfce7;
+      --danger: #b91c1c;
+      --danger-bg: #fee2e2;
+      --warn: #b45309;
+      --warn-bg: #fef3c7;
+    }
+    * {
+      box-sizing: border-box;
+      font-family: 'Vazirmatn', 'IRANSansX', 'IRANSans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    input, select, button { font-family: inherit; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px; margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+    h1, h2, h3 { margin-top: 0; color: var(--primary); }
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 18px; }
+    .badge {
+      background: var(--primary-light); color: var(--primary);
+      padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: bold;
+    }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 14px; }
+    input, select {
+      width: 100%; padding: 11px 14px; border: 1px solid var(--border);
+      border-radius: 10px; font-size: 15px; background: #fff;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 22px; border: none; border-radius: 10px;
+      font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.15s;
+    }
+    .btn-primary { background: var(--primary); color: #fff; width: 100%; }
+    .btn-primary:hover { background: #0c3b64; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-outline { background: #fff; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: #f1f5f9; }
+    .hidden { display: none !important; }
+
+    /* Sticky Exam Header */
+    .exam-header {
+      position: sticky; top: 0; z-index: 50;
+      background: #0f172a; color: #fff; padding: 12px 16px;
+      border-radius: 0 0 14px 14px; margin-bottom: 16px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+    }
+    .timer-box {
+      background: #1e293b; border: 1px solid #334155;
+      padding: 6px 14px; border-radius: 10px; font-size: 18px; font-weight: bold; color: #38bdf8;
+    }
+    .timer-danger { color: #f87171 !important; border-color: #ef4444 !important; }
+
+    /* Palette */
+    .palette { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin-bottom: 16px; }
+    @media (max-width: 600px) { .palette { grid-template-columns: repeat(5, 1fr); } }
+    .p-btn {
+      padding: 8px 0; border-radius: 8px; border: 1px solid var(--border);
+      background: #fff; font-weight: bold; cursor: pointer; font-size: 13px;
+    }
+    .p-btn.answered { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .p-btn.active { outline: 3px solid #38bdf8; }
+
+    /* Question */
+    .q-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .q-cat { background: #e2e8f0; color: #1e293b; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; }
+    .q-stem { font-size: 16px; font-weight: bold; margin-bottom: 16px; }
+    .option-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 14px; border: 1.5px solid var(--border);
+      border-radius: 10px; margin-bottom: 10px; cursor: pointer; transition: 0.12s;
+    }
+    .option-item:hover { background: #f8fafc; border-color: var(--accent); }
+    .option-item.selected { background: var(--primary-light); border-color: var(--primary); font-weight: bold; }
+    .opt-letter {
+      min-width: 28px; height: 28px; border-radius: 50%;
+      background: #e2e8f0; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: bold;
+    }
+    .option-item.selected .opt-letter { background: var(--primary); color: #fff; }
+    .nav-row { display: flex; justify-content: space-between; gap: 10px; margin-top: 16px; }
+
+    /* Scorecard & Leaderboard */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
+    .stat-box { background: #f1f5f9; padding: 14px; border-radius: 12px; text-align: center; }
+    .stat-val { font-size: 22px; font-weight: bold; color: var(--primary); }
+    .stat-lbl { font-size: 12px; color: var(--muted); }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+    th, td { padding: 10px; border-bottom: 1px solid var(--border); text-align: center; }
+    th { background: #f1f5f9; color: var(--primary); }
+    .me-row { background: #fef9c3; font-weight: bold; }
+
+    /* Review Cards */
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .filter-btn { padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border); background: #fff; cursor: pointer; font-size: 13px; }
+    .filter-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .rev-opt { padding: 9px 12px; border-radius: 8px; margin-bottom: 6px; border: 1px solid var(--border); font-size: 14px; }
+    .rev-opt.correct { background: var(--success-bg); border-color: var(--success); color: #14532d; font-weight: bold; }
+    .rev-opt.wrong { background: var(--danger-bg); border-color: var(--danger); color: #7f1d1d; }
+    .exp-box {
+      margin-top: 12px; padding: 12px 14px; background: #f8fafc;
+      border-right: 4px solid var(--accent); border-radius: 8px;
+      font-size: 14px; white-space: pre-line;
+    }
+    .loader { text-align: center; padding: 30px; font-weight: bold; color: var(--primary); }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- صفحه خوش‌آمدگویی و ورود مشخصات -->
+  <div id="startScreen" class="card">
+    <h1>آزمون شبیه‌ساز ادغام بلاک عفونی ۲</h1>
+    <p style="color: var(--muted); margin-bottom: 8px;">
+      طراحی‌شده بر اساس بانک سوالات ادغام عفونی ۲ + سوالات تلفیقی بالینی و دارویی
+    </p>
+    <div class="badges">
+      <span class="badge">تعداد سوالات: ۲۰ سوال</span>
+      <span class="badge">مدت زمان: ۲۰ دقیقه</span>
+      <span class="badge">بدون نمره منفی (بارم برابر)</span>
+      <span class="badge">۸ فارماکولوژی | ۲ پاتولوژی | ۱۰ اپیدمیولوژی</span>
+    </div>
+
+    <div class="form-group">
+      <label for="inpName">نام و نام خانوادگی (جهت نمایش در جدول رتبه‌بندی):</label>
+      <input type="text" id="inpName" required />
+    </div>
+    <div class="form-group">
+      <label for="inpCode">کد دانشجویی یا نام مستعار (اختیاری):</label>
+      <input type="text" id="inpCode" />
+    </div>
+    <div class="form-group">
+      <label for="inpForm">انتخاب دفترچه (فرم A و B دارای ۸۰٪ شباهت و ۲۰٪ تفاوت هستند):</label>
+      <select id="inpForm">
+        <option value="AUTO">تخصیص خودکار متوازن (فرم A یا B)</option>
+        <option value="A">فرم A</option>
+        <option value="B">فرم B</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary" onclick="startExam()">شروع آزمون زمان‌بندی‌شده</button>
+    <div style="margin-top: 12px; text-align: center;">
+      <button class="btn btn-outline" style="font-size: 13px; padding: 8px 14px;" onclick="loadPublicLeaderboard()">مشاهده جدول رتبه‌بندی تا این لحظه</button>
+    </div>
+    <div id="publicLbContainer" class="hidden" style="margin-top: 14px;"></div>
+  </div>
+
+  <!-- صفحه در حال بارگذاری -->
+  <div id="loadingScreen" class="card loader hidden">
+    در حال بارگذاری سوالات و آماده‌سازی آزمون...
+  </div>
+
+  <!-- صفحه برگزاری آزمون -->
+  <div id="examScreen" class="hidden">
+    <div class="exam-header">
+      <div>
+        <strong id="hdrUser"></strong>
+        <span id="hdrForm" style="background:#334155; padding:2px 8px; border-radius:6px; font-size:12px; margin-right:6px;"></span>
+      </div>
+      <div id="timerBox" class="timer-box">20:00</div>
+    </div>
+
+    <div class="card">
+      <div id="palette" class="palette"></div>
+      <div id="questionContainer"></div>
+      <div class="nav-row">
+        <button class="btn btn-outline" id="btnPrev" onclick="prevQuestion()">سوال قبلی</button>
+        <button class="btn btn-outline" id="btnClear" onclick="clearChoice()">پاک کردن گزینه</button>
+        <button class="btn btn-outline" id="btnNext" onclick="nextQuestion()">سوال بعدی</button>
+      </div>
+    </div>
+
+    <button class="btn btn-success" style="width: 100%; padding: 14px;" onclick="confirmSubmit()">
+      پایان آزمون، ثبت پاسخ‌ها و مشاهده کارنامه و تحلیل سوالات
+    </button>
+  </div>
+
+  <!-- صفحه کارنامه، رتبه‌بندی و تحلیل تشریحی -->
+  <div id="resultScreen" class="hidden">
+    <div class="card">
+      <h2>کارنامه نهایی آزمون</h2>
+      <p id="resSubtitle" style="color: var(--muted);"></p>
+      <div id="statsGrid" class="stats-grid"></div>
+    </div>
+
+    <div class="card">
+      <h3>جدول رتبه‌بندی شرکت‌کنندگان (Leaderboard)</h3>
+      <p style="font-size: 12px; color: var(--muted); margin-top: -6px;">معیار رتبه‌بندی: نمره بالاتر و در صورت تساوی، زمان پاسخ‌گویی کوتاه‌تر</p>
+      <div style="overflow-x: auto;">
+        <table id="lbTable"></table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>تحلیل جامع سوالات، گزینه صحیح و بررسی سایر گزینه‌ها</h3>
+      <div class="filter-bar" id="filterBar">
+        <button class="filter-btn active" onclick="filterReview('ALL', this)">همه سوالات (۲۰)</button>
+        <button class="filter-btn" onclick="filterReview('WRONG', this)">غلط و نزده‌ها</button>
+        <button class="filter-btn" onclick="filterReview('فارماکولوژی', this)">فارماکولوژی (۸)</button>
+        <button class="filter-btn" onclick="filterReview('پاتولوژی', this)">پاتولوژی (۲)</button>
+        <button class="filter-btn" onclick="filterReview('اپیدمیولوژی', this)">اپیدمیولوژی (۱۰)</button>
+      </div>
+      <div id="reviewContainer"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwVNPjvWJoSy9DqMPPj_yokHbLiVS7tHo7_IvuR2BrPkLKrz1AJfE9FNLAQxQ_cX7oOiQ/exec";
+
+  const LETTERS = ['الف', 'ب', 'ج', 'د'];
+  const STORAGE_KEY = 'sums_infectious2_exam_state_v1';
+
+  let state = {
+    name: '',
+    code: '',
+    formType: 'A',
+    questions: [],
+    answers: {},
+    currentIdx: 0,
+    endTimeMs: 0,
+    durationSeconds: 1200
+  };
+  let timerInterval = null;
+  let fullReviewList = [];
+
+  function callBackendGet(params) {
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      return new Promise((resolve, reject) => {
+        if (params.action === 'getExam') {
+          google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).handleGetExam(params.form);
+        } else if (params.action === 'leaderboard') {
+          google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getLeaderboardPublic();
+        }
+      });
+    }
+    const url = new URL(GAS_WEB_APP_URL);
+    Object.keys(params).forEach(k => url.searchParams.append(k, params[k]));
+    return fetch(url.toString(), { method: 'GET', redirect: 'follow' }).then(r => r.json());
+  }
+
+  function callBackendPost(payload) {
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      return new Promise((resolve, reject) => {
+        google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).handleSubmitExam(payload);
+      });
+    }
+    const url = new URL(GAS_WEB_APP_URL);
+    url.searchParams.append('action', 'submitExam');
+    url.searchParams.append('data', JSON.stringify(payload));
+    return fetch(url.toString(), { method: 'GET', redirect: 'follow' }).then(r => r.json());
+  }
+
+  function safeGetStorage(key) {
+    try { return window.localStorage.getItem(key); } catch (e) { return null; }
+  }
+  function safeSetStorage(key, val) {
+    try { window.localStorage.setItem(key, val); } catch (e) {}
+  }
+  function safeRemoveStorage(key) {
+    try { window.localStorage.removeItem(key); } catch (e) {}
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const saved = safeGetStorage(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.questions && parsed.questions.length > 0 && parsed.endTimeMs > Date.now()) {
+          state = parsed;
+          enterExamUI();
+        } else {
+          safeRemoveStorage(STORAGE_KEY);
+        }
+      } catch (e) {
+        safeRemoveStorage(STORAGE_KEY);
+      }
+    }
+  });
+
+  async function startExam() {
+    const name = document.getElementById('inpName').value.trim();
+    const code = document.getElementById('inpCode').value.trim();
+    const form = document.getElementById('inpForm').value;
+    if (!name) {
+      alert('لطفاً نام و نام خانوادگی خود را وارد کنید.');
+      return;
+    }
+
+    document.getElementById('startScreen').classList.add('hidden');
+    document.getElementById('loadingScreen').classList.remove('hidden');
+
+    try {
+      const res = await callBackendGet({ action: 'getExam', form: form });
+      if (!res || !res.ok) throw new Error('خطا در دریافت سوالات');
+
+      state = {
+        name: name,
+        code: code,
+        formType: res.formType,
+        questions: res.questions,
+        answers: {},
+        currentIdx: 0,
+        durationSeconds: res.durationSeconds || 1200,
+        endTimeMs: Date.now() + (res.durationSeconds || 1200) * 1000
+      };
+      saveState();
+      document.getElementById('loadingScreen').classList.add('hidden');
+      enterExamUI();
+    } catch (err) {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      document.getElementById('startScreen').classList.remove('hidden');
+      alert('خطا در ارتباط با سرور آزمون. لطفاً اتصال اینترنت را بررسی کنید.');
+    }
+  }
+
+  function saveState() {
+    safeSetStorage(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function enterExamUI() {
+    document.getElementById('startScreen').classList.add('hidden');
+    document.getElementById('examScreen').classList.remove('hidden');
+    document.getElementById('hdrUser').textContent = state.name;
+    document.getElementById('hdrForm').textContent = 'فرم ' + state.formType;
+    renderPalette();
+    renderQuestion();
+    startTimer();
+  }
+
+  function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    const update = () => {
+      const remaining = Math.max(0, Math.floor((state.endTimeMs - Date.now()) / 1000));
+      const mins = String(Math.floor(remaining / 60)).padStart(2, '0');
+      const secs = String(remaining % 60).padStart(2, '0');
+      const box = document.getElementById('timerBox');
+      box.textContent = mins + ':' + secs;
+      if (remaining <= 120) box.classList.add('timer-danger');
+      if (remaining === 0) {
+        clearInterval(timerInterval);
+        submitExam(true);
+      }
+    };
+    update();
+    timerInterval = setInterval(update, 1000);
+  }
+
+  function renderPalette() {
+    const pal = document.getElementById('palette');
+    pal.innerHTML = '';
+    state.questions.forEach((q, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'p-btn' +
+        (state.answers[q.id] !== undefined ? ' answered' : '') +
+        (idx === state.currentIdx ? ' active' : '');
+      btn.textContent = idx + 1;
+      btn.onclick = () => { state.currentIdx = idx; saveState(); renderPalette(); renderQuestion(); };
+      pal.appendChild(btn);
+    });
+  }
+
+  function renderQuestion() {
+    const q = state.questions[state.currentIdx];
+    const selected = state.answers[q.id];
+    const container = document.getElementById('questionContainer');
+
+    let optsHtml = q.options.map((opt, idx) => {
+      const isSel = (selected === idx);
+      return `
+        <div class="option-item ${isSel ? 'selected' : ''}" onclick="selectOption('${q.id}', ${idx})">
+          <div class="opt-letter">${LETTERS[idx]}</div>
+          <div>${opt}</div>
+        </div>
+      `;
+    }).join('');
+
+    container.innerHTML = `
+      <div class="q-meta">
+        <strong>سوال ${q.number} از ${state.questions.length}</strong>
+        <span class="q-cat">${q.category}</span>
+      </div>
+      <div class="q-stem">${q.stem}</div>
+      <div>${optsHtml}</div>
+    `;
+
+    document.getElementById('btnPrev').disabled = (state.currentIdx === 0);
+    document.getElementById('btnNext').disabled = (state.currentIdx === state.questions.length - 1);
+  }
+
+  function selectOption(qId, optIdx) {
+    state.answers[qId] = optIdx;
+    saveState();
+    renderPalette();
+    renderQuestion();
+  }
+
+  function clearChoice() {
+    const q = state.questions[state.currentIdx];
+    delete state.answers[q.id];
+    saveState();
+    renderPalette();
+    renderQuestion();
+  }
+
+  function prevQuestion() {
+    if (state.currentIdx > 0) {
+      state.currentIdx--;
+      saveState();
+      renderPalette();
+      renderQuestion();
+    }
+  }
+
+  function nextQuestion() {
+    if (state.currentIdx < state.questions.length - 1) {
+      state.currentIdx++;
+      saveState();
+      renderPalette();
+      renderQuestion();
+    }
+  }
+
+  function confirmSubmit() {
+    const answeredCount = Object.keys(state.answers).length;
+    const msg = `شما به ${answeredCount} سوال از ${state.questions.length} سوال پاسخ داده‌اید.\nآیا از ثبت نهایی و پایان آزمون مطمئن هستید؟`;
+    if (confirm(msg)) {
+      submitExam(false);
+    }
+  }
+
+  async function submitExam(isAuto) {
+    if (timerInterval) clearInterval(timerInterval);
+    const remaining = Math.max(0, Math.floor((state.endTimeMs - Date.now()) / 1000));
+    const spent = Math.max(1, state.durationSeconds - remaining);
+
+    document.getElementById('examScreen').classList.add('hidden');
+    document.getElementById('loadingScreen').textContent = isAuto
+      ? 'زمان آزمون به پایان رسید! در حال ثبت خودکار پاسخ‌ها و محاسبه رتبه...'
+      : 'در حال ثبت پاسخ‌ها، محاسبه رتبه و دریافت تحلیل تشریحی...';
+    document.getElementById('loadingScreen').classList.remove('hidden');
+
+    try {
+      const res = await callBackendPost({
+        name: state.name,
+        code: state.code,
+        formType: state.formType,
+        answers: state.answers,
+        durationSeconds: spent
+      });
+
+      safeRemoveStorage(STORAGE_KEY);
+      document.getElementById('loadingScreen').classList.add('hidden');
+
+      if (!res || !res.ok) throw new Error(res.error || 'خطا در ثبت آزمون');
+      renderResultScreen(res);
+    } catch (err) {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      document.getElementById('examScreen').classList.remove('hidden');
+      alert('خطا در ارسال پاسخ‌ها: ' + err.message);
+    }
+  }
+
+  function formatDuration(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m} دقیقه و ${s} ثانیه`;
+  }
+
+  function renderResultScreen(res) {
+    const s = res.summary;
+    document.getElementById('resultScreen').classList.remove('hidden');
+    document.getElementById('resSubtitle').textContent =
+      `${s.name} | فرم ${s.formType} | زمان مصرفی: ${formatDuration(s.durationSeconds)}`;
+
+    document.getElementById('statsGrid').innerHTML = `
+      <div class="stat-box"><div class="stat-val">${s.score} از ${s.total}</div><div class="stat-lbl">نمره کل</div></div>
+      <div class="stat-box"><div class="stat-val">${s.percentage}%</div><div class="stat-lbl">درصد کل</div></div>
+      <div class="stat-box"><div class="stat-val">${s.rank} از ${s.totalParticipants}</div><div class="stat-lbl">رتبه شما</div></div>
+      <div class="stat-box"><div class="stat-val">${s.pharma} از 8</div><div class="stat-lbl">فارماکولوژی</div></div>
+      <div class="stat-box"><div class="stat-val">${s.patho} از 2</div><div class="stat-lbl">پاتولوژی</div></div>
+      <div class="stat-box"><div class="stat-val">${s.epi} از 10</div><div class="stat-lbl">اپیدمیولوژی</div></div>
+    `;
+
+    // Leaderboard
+    let lbRows = `<tr><th>رتبه</th><th>نام شرکت‌کننده</th><th>فرم</th><th>نمره (از ۲۰)</th><th>درصد</th><th>زمان</th></tr>`;
+    res.leaderboard.forEach(row => {
+      const isMe = (row.rank === s.rank && row.name === s.name);
+      lbRows += `<tr class="${isMe ? 'me-row' : ''}">
+        <td>${row.rank}</td>
+        <td>${row.name}</td>
+        <td>${row.form}</td>
+        <td>${row.score}</td>
+        <td>${row.percentage}%</td>
+        <td>${Math.floor(row.duration / 60)}:${String(row.duration % 60).padStart(2, '0')}</td>
+      </tr>`;
+    });
+    document.getElementById('lbTable').innerHTML = lbRows;
+
+    fullReviewList = res.review || [];
+    renderReviewCards(fullReviewList);
+  }
+
+  function filterReview(mode, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (mode === 'ALL') renderReviewCards(fullReviewList);
+    else if (mode === 'WRONG') renderReviewCards(fullReviewList.filter(r => !r.isCorrect));
+    else renderReviewCards(fullReviewList.filter(r => r.category === mode));
+  }
+
+  function renderReviewCards(items) {
+    const container = document.getElementById('reviewContainer');
+    if (items.length === 0) {
+      container.innerHTML = '<p style="color:var(--muted); text-align:center;">موردی در این فیلتر وجود ندارد.</p>';
+      return;
+    }
+    container.innerHTML = items.map(item => {
+      const statusBadge = item.isCorrect
+        ? '<span style="color:var(--success); font-weight:bold;">✔ پاسخ صحیح</span>'
+        : (item.selectedIndex === -1
+            ? '<span style="color:var(--warn); font-weight:bold;">⚪ نزده</span>'
+            : '<span style="color:var(--danger); font-weight:bold;">✘ پاسخ نادرست</span>');
+
+      const optsHtml = item.options.map((opt, idx) => {
+        let cls = 'rev-opt';
+        let tag = '';
+        if (idx === item.correctIndex) {
+          cls += ' correct';
+          tag = ' (گزینه صحیح)';
+        } else if (idx === item.selectedIndex && !item.isCorrect) {
+          cls += ' wrong';
+          tag = ' (انتخاب شما)';
+        }
+        return `<div class="${cls}"><strong>${LETTERS[idx]})</strong> ${opt}${tag}</div>`;
+      }).join('');
+
+      return `
+        <div style="border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:14px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span class="q-cat">سوال ${item.number} | ${item.category}</span>
+            ${statusBadge}
+          </div>
+          <div style="font-weight:bold; margin-bottom:10px;">${item.stem}</div>
+          ${optsHtml}
+          <div class="exp-box">${item.explanation}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function loadPublicLeaderboard() {
+    const box = document.getElementById('publicLbContainer');
+    box.classList.remove('hidden');
+    box.innerHTML = 'در حال دریافت جدول رتبه‌بندی...';
+    try {
+      const res = await callBackendGet({ action: 'leaderboard' });
+      if (!res.leaderboard || res.leaderboard.length === 0) {
+        box.innerHTML = '<p style="text-align:center; color:var(--muted);">هنوز شرکت‌کننده‌ای ثبت نشده است.</p>';
+        return;
+      }
+      let html = '<table><tr><th>رتبه</th><th>نام</th><th>فرم</th><th>نمره</th><th>درصد</th></tr>';
+      res.leaderboard.forEach(r => {
+        html += `<tr><td>${r.rank}</td><td>${r.name}</td><td>${r.form}</td><td>${r.score}/20</td><td>${r.percentage}%</td></tr>`;
+      });
+      html += '</table>';
+      box.innerHTML = html;
+    } catch (e) {
+      box.innerHTML = '<p style="color:var(--danger); text-align:center;">خطا در دریافت اطلاعات از سرور آزمون.</p>';
+    }
+  }
+</script>
+</body>
+</html>

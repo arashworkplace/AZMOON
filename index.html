@@ -139,6 +139,13 @@
 <div class="container">
   <!-- صفحه خوش‌آمدگویی و ورود مشخصات -->
   <div id="startScreen" class="card">
+    <div id="savedResultBanner" class="hidden" style="background: var(--success-bg); border: 1.5px solid var(--success); border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+      <div style="font-weight: bold; color: #14532d; margin-bottom: 8px;" id="savedBannerText"></div>
+      <button class="btn btn-success" style="width: 100%; padding: 10px;" onclick="openSavedResult()">
+        مشاهده کارنامه، رتبه به‌روزشده و تحلیل سوالات قبلی
+      </button>
+    </div>
+
     <h1>آزمون شبیه‌ساز ادغام بلاک عفونی ۲</h1>
     <p style="color: var(--muted); margin-bottom: 8px;">
       پوشش کامل بانک سوالات ادغام عفونی ۲ (تمام ادوار) + سوالات تلفیقی
@@ -169,9 +176,24 @@
     </div>
 
     <button class="btn btn-primary" onclick="startExam()">شروع آزمون زمان‌بندی‌شده</button>
-    <div style="margin-top: 12px; text-align: center;">
+    <div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+      <button class="btn btn-outline" style="font-size: 13px; padding: 8px 14px;" onclick="toggleLookupBox()">بازیابی کارنامه قبلی (با نام یا کد پیگیری)</button>
       <button class="btn btn-outline" style="font-size: 13px; padding: 8px 14px;" onclick="loadPublicLeaderboard()">مشاهده جدول رتبه‌بندی تا این لحظه</button>
     </div>
+
+    <div id="lookupBox" class="hidden" style="margin-top: 14px; background: #f1f5f9; border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
+      <div style="font-weight: bold; color: var(--primary); margin-bottom: 8px; font-size: 14px;">بازیابی کارنامه و تحلیل آزمون‌های ثبت‌شده</div>
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label for="lookupName" style="font-size: 13px;">نام و نام خانوادگی ثبت‌شده در آزمون:</label>
+        <input type="text" id="lookupName" />
+      </div>
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label for="lookupCode" style="font-size: 13px;">کد پیگیری ۴ رقمی یا کد دانشجویی (در صورت ثبت):</label>
+        <input type="text" id="lookupCode" />
+      </div>
+      <button class="btn btn-primary" style="padding: 10px;" onclick="recoverPreviousResult()">نمایش کارنامه و تحلیل سوالات</button>
+    </div>
+
     <div id="publicLbContainer" class="hidden" style="margin-top: 14px;"></div>
   </div>
 
@@ -208,8 +230,12 @@
   <!-- صفحه کارنامه، رتبه‌بندی و تحلیل تشریحی -->
   <div id="resultScreen" class="hidden">
     <div class="card">
-      <h2>کارنامه نهایی آزمون</h2>
-      <p id="resSubtitle" style="color: var(--muted);"></p>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+        <h2 style="margin: 0;">کارنامه نهایی آزمون</h2>
+        <button class="btn btn-outline" style="font-size: 13px; padding: 6px 14px;" onclick="backToHome()">بازگشت به صفحه اصلی</button>
+      </div>
+      <p id="resSubtitle" style="color: var(--muted); margin-bottom: 8px;"></p>
+      <div id="trackingBadge" style="background: var(--primary-light); color: var(--primary); padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: bold; margin-bottom: 12px;"></div>
       <div id="statsGrid" class="stats-grid"></div>
     </div>
 
@@ -240,6 +266,7 @@
 
   const LETTERS = ['الف', 'ب', 'ج', 'د'];
   const STORAGE_KEY = 'sums_infectious2_exam_state_v3';
+  const COMPLETED_KEY = 'sums_infectious2_completed_v1';
 
   let state = {
     name: '',
@@ -261,6 +288,8 @@
           google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).handleGetExam(params.form);
         } else if (params.action === 'leaderboard') {
           google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getLeaderboardPublic();
+        } else if (params.action === 'getResult') {
+          google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).handleGetResult(params.name, params.code);
         }
       });
     }
@@ -291,7 +320,21 @@
     try { window.localStorage.removeItem(key); } catch (e) {}
   }
 
+  function checkSavedCompletedResult() {
+    const completedRaw = safeGetStorage(COMPLETED_KEY);
+    if (!completedRaw) return;
+    try {
+      const comp = JSON.parse(completedRaw);
+      if (comp && comp.trackingCode) {
+        document.getElementById('savedResultBanner').classList.remove('hidden');
+        document.getElementById('savedBannerText').textContent =
+          `کارنامه آزمون قبلی شما (${comp.name} | کد پیگیری: ${comp.trackingCode}) در این دستگاه ذخیره شده است:`;
+      }
+    } catch (e) {}
+  }
+
   window.addEventListener('DOMContentLoaded', () => {
+    checkSavedCompletedResult();
     const saved = safeGetStorage(STORAGE_KEY);
     if (saved) {
       try {
@@ -484,6 +527,13 @@
       document.getElementById('loadingScreen').classList.add('hidden');
 
       if (!res || !res.ok) throw new Error(res.error || 'خطا در ثبت آزمون');
+      if (res.summary && res.summary.trackingCode) {
+        safeSetStorage(COMPLETED_KEY, JSON.stringify({
+          trackingCode: res.summary.trackingCode,
+          name: res.summary.name,
+          formType: res.summary.formType
+        }));
+      }
       renderResultScreen(res);
     } catch (err) {
       document.getElementById('loadingScreen').classList.add('hidden');
@@ -500,9 +550,12 @@
 
   function renderResultScreen(res) {
     const s = res.summary;
+    document.getElementById('startScreen').classList.add('hidden');
     document.getElementById('resultScreen').classList.remove('hidden');
     document.getElementById('resSubtitle').textContent =
       `${s.name} | فرم ${s.formType} | زمان مصرفی: ${formatDuration(s.durationSeconds)}`;
+    document.getElementById('trackingBadge').textContent =
+      `کد پیگیری کارنامه شما: ${s.trackingCode || '-'} (این کد یا نام خود را برای مشاهده مجدد کارنامه از هر دستگاهی نزد خود نگه دارید)`;
 
     document.getElementById('statsGrid').innerHTML = `
       <div class="stat-box"><div class="stat-val">${s.score} از ${s.total}</div><div class="stat-lbl">نمره کل</div></div>
@@ -578,6 +631,64 @@
         </div>
       `;
     }).join('');
+  }
+
+
+  function toggleLookupBox() {
+    document.getElementById('lookupBox').classList.toggle('hidden');
+  }
+
+  function backToHome() {
+    document.getElementById('resultScreen').classList.add('hidden');
+    document.getElementById('startScreen').classList.remove('hidden');
+    checkSavedCompletedResult();
+  }
+
+  async function openSavedResult() {
+    const completedRaw = safeGetStorage(COMPLETED_KEY);
+    if (!completedRaw) return;
+    try {
+      const comp = JSON.parse(completedRaw);
+      await fetchAndShowResult(comp.name, comp.trackingCode);
+    } catch (e) {}
+  }
+
+  async function recoverPreviousResult() {
+    const name = document.getElementById('lookupName').value.trim();
+    const code = document.getElementById('lookupCode').value.trim();
+    if (!name && !code) {
+      alert('لطفاً نام و نام خانوادگی یا کد پیگیری خود را وارد کنید.');
+      return;
+    }
+    await fetchAndShowResult(name, code);
+  }
+
+  async function fetchAndShowResult(name, code) {
+    document.getElementById('startScreen').classList.add('hidden');
+    document.getElementById('loadingScreen').textContent = 'در حال بازیابی کارنامه، رتبه لحظه‌ای و تحلیل سوالات...';
+    document.getElementById('loadingScreen').classList.remove('hidden');
+
+    try {
+      const res = await callBackendGet({ action: 'getResult', name: name, code: code });
+      document.getElementById('loadingScreen').classList.add('hidden');
+      if (!res || !res.ok) {
+        document.getElementById('startScreen').classList.remove('hidden');
+        alert(res && res.error ? res.error : 'کارنامه‌ای یافت نشد.');
+        return;
+      }
+      if (res.summary && res.summary.trackingCode) {
+        safeSetStorage(COMPLETED_KEY, JSON.stringify({
+          trackingCode: res.summary.trackingCode,
+          name: res.summary.name,
+          formType: res.summary.formType
+        }));
+      }
+      renderResultScreen(res);
+    } catch (err) {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      document.getElementById('startScreen').classList.remove('hidden');
+      alert('خطا در ارتباط با سرور آزمون.');
+    }
   }
 
   async function loadPublicLeaderboard() {

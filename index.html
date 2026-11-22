@@ -36,7 +36,7 @@
       line-height: 1.8;
       -webkit-font-smoothing: antialiased;
     }
-    .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+    .container { max-width: 920px; margin: 0 auto; padding: 16px; }
     .card {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 14px; padding: 20px; margin-bottom: 16px;
@@ -81,7 +81,7 @@
     .timer-danger { color: #f87171 !important; border-color: #ef4444 !important; }
 
     /* Palette */
-    .palette { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin-bottom: 16px; }
+    .palette { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; margin-bottom: 16px; }
     @media (max-width: 600px) { .palette { grid-template-columns: repeat(5, 1fr); } }
     .p-btn {
       padding: 8px 0; border-radius: 8px; border: 1px solid var(--border);
@@ -91,7 +91,7 @@
     .p-btn.active { outline: 3px solid #38bdf8; }
 
     /* Question */
-    .q-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .q-meta { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
     .q-cat { background: #e2e8f0; color: #1e293b; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; }
     .q-stem { font-size: 16px; font-weight: bold; margin-bottom: 16px; }
     .option-item {
@@ -110,9 +110,9 @@
     .nav-row { display: flex; justify-content: space-between; gap: 10px; margin-top: 16px; }
 
     /* Scorecard & Leaderboard */
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 16px 0; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 16px 0; }
     .stat-box { background: #f1f5f9; padding: 14px; border-radius: 12px; text-align: center; }
-    .stat-val { font-size: 22px; font-weight: bold; color: var(--primary); }
+    .stat-val { font-size: 21px; font-weight: bold; color: var(--primary); }
     .stat-lbl { font-size: 12px; color: var(--muted); }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
     th, td { padding: 10px; border-bottom: 1px solid var(--border); text-align: center; }
@@ -141,13 +141,13 @@
   <div id="startScreen" class="card">
     <h1>آزمون شبیه‌ساز ادغام بلاک عفونی ۲</h1>
     <p style="color: var(--muted); margin-bottom: 8px;">
-      طراحی‌شده بر اساس بانک سوالات ادغام عفونی ۲ + سوالات تلفیقی بالینی و دارویی
+      پوشش کامل بانک سوالات ادغام عفونی ۲ (تمام ادوار) + سوالات تلفیقی
     </p>
     <div class="badges">
-      <span class="badge">تعداد سوالات: ۲۰ سوال</span>
+      <span class="badge">تعداد سوالات: ۲۷ سوال</span>
       <span class="badge">مدت زمان: ۲۰ دقیقه</span>
       <span class="badge">بدون نمره منفی (بارم برابر)</span>
-      <span class="badge">۸ فارماکولوژی | ۲ پاتولوژی | ۱۰ اپیدمیولوژی</span>
+      <span class="badge">۱۲ فارماکولوژی | ۳ پاتولوژی | ۱۲ اپیدمیولوژی</span>
     </div>
 
     <div class="form-group">
@@ -159,11 +159,12 @@
       <input type="text" id="inpCode" />
     </div>
     <div class="form-group">
-      <label for="inpForm">انتخاب دفترچه (فرم A و B دارای ۸۰٪ شباهت و ۲۰٪ تفاوت هستند):</label>
+      <label for="inpForm">انتخاب دفترچه (فرم‌های A، B و C دارای بودجه‌بندی یکسان و پوشش کامل بانک سوال هستند):</label>
       <select id="inpForm">
-        <option value="AUTO">تخصیص خودکار متوازن (فرم A یا B)</option>
+        <option value="AUTO">تخصیص خودکار متوازن (فرم A، B یا C)</option>
         <option value="A">فرم A</option>
         <option value="B">فرم B</option>
+        <option value="C">فرم C</option>
       </select>
     </div>
 
@@ -223,11 +224,11 @@
     <div class="card">
       <h3>تحلیل جامع سوالات، گزینه صحیح و بررسی سایر گزینه‌ها</h3>
       <div class="filter-bar" id="filterBar">
-        <button class="filter-btn active" onclick="filterReview('ALL', this)">همه سوالات (۲۰)</button>
+        <button class="filter-btn active" onclick="filterReview('ALL', this)">همه سوالات (۲۷)</button>
         <button class="filter-btn" onclick="filterReview('WRONG', this)">غلط و نزده‌ها</button>
-        <button class="filter-btn" onclick="filterReview('فارماکولوژی', this)">فارماکولوژی (۸)</button>
-        <button class="filter-btn" onclick="filterReview('پاتولوژی', this)">پاتولوژی (۲)</button>
-        <button class="filter-btn" onclick="filterReview('اپیدمیولوژی', this)">اپیدمیولوژی (۱۰)</button>
+        <button class="filter-btn" onclick="filterReview('فارماکولوژی', this)">فارماکولوژی (۱۲)</button>
+        <button class="filter-btn" onclick="filterReview('پاتولوژی', this)">پاتولوژی (۳)</button>
+        <button class="filter-btn" onclick="filterReview('اپیدمیولوژی', this)">اپیدمیولوژی (۱۲)</button>
       </div>
       <div id="reviewContainer"></div>
     </div>
@@ -238,7 +239,7 @@
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwVNPjvWJoSy9DqMPPj_yokHbLiVS7tHo7_IvuR2BrPkLKrz1AJfE9FNLAQxQ_cX7oOiQ/exec";
 
   const LETTERS = ['الف', 'ب', 'ج', 'د'];
-  const STORAGE_KEY = 'sums_infectious2_exam_state_v1';
+  const STORAGE_KEY = 'sums_infectious2_exam_state_v3';
 
   let state = {
     name: '',
@@ -404,10 +405,11 @@
       `;
     }).join('');
 
+    const subLabel = q.subcategory && q.subcategory !== q.category ? ` (${q.subcategory})` : '';
     container.innerHTML = `
       <div class="q-meta">
         <strong>سوال ${q.number} از ${state.questions.length}</strong>
-        <span class="q-cat">${q.category}</span>
+        <span class="q-cat">${q.category}${subLabel}</span>
       </div>
       <div class="q-stem">${q.stem}</div>
       <div>${optsHtml}</div>
@@ -506,13 +508,12 @@
       <div class="stat-box"><div class="stat-val">${s.score} از ${s.total}</div><div class="stat-lbl">نمره کل</div></div>
       <div class="stat-box"><div class="stat-val">${s.percentage}%</div><div class="stat-lbl">درصد کل</div></div>
       <div class="stat-box"><div class="stat-val">${s.rank} از ${s.totalParticipants}</div><div class="stat-lbl">رتبه شما</div></div>
-      <div class="stat-box"><div class="stat-val">${s.pharma} از 8</div><div class="stat-lbl">فارماکولوژی</div></div>
-      <div class="stat-box"><div class="stat-val">${s.patho} از 2</div><div class="stat-lbl">پاتولوژی</div></div>
-      <div class="stat-box"><div class="stat-val">${s.epi} از 10</div><div class="stat-lbl">اپیدمیولوژی</div></div>
+      <div class="stat-box"><div class="stat-val">${s.pharma} از 12</div><div class="stat-lbl">فارماکولوژی</div></div>
+      <div class="stat-box"><div class="stat-val">${s.patho} از 3</div><div class="stat-lbl">پاتولوژی</div></div>
+      <div class="stat-box"><div class="stat-val">${s.epi} از 12</div><div class="stat-lbl">اپیدمیولوژی</div></div>
     `;
 
-    // Leaderboard
-    let lbRows = `<tr><th>رتبه</th><th>نام شرکت‌کننده</th><th>فرم</th><th>نمره (از ۲۰)</th><th>درصد</th><th>زمان</th></tr>`;
+    let lbRows = `<tr><th>رتبه</th><th>نام شرکت‌کننده</th><th>فرم</th><th>نمره (از ۲۷)</th><th>درصد</th><th>زمان</th></tr>`;
     res.leaderboard.forEach(row => {
       const isMe = (row.rank === s.rank && row.name === s.name);
       lbRows += `<tr class="${isMe ? 'me-row' : ''}">
@@ -564,10 +565,11 @@
         return `<div class="${cls}"><strong>${LETTERS[idx]})</strong> ${opt}${tag}</div>`;
       }).join('');
 
+      const subLabel = item.subcategory && item.subcategory !== item.category ? ` - ${item.subcategory}` : '';
       return `
         <div style="border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:14px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-            <span class="q-cat">سوال ${item.number} | ${item.category}</span>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
+            <span class="q-cat">سوال ${item.number} | ${item.category}${subLabel}</span>
             ${statusBadge}
           </div>
           <div style="font-weight:bold; margin-bottom:10px;">${item.stem}</div>
@@ -590,7 +592,7 @@
       }
       let html = '<table><tr><th>رتبه</th><th>نام</th><th>فرم</th><th>نمره</th><th>درصد</th></tr>';
       res.leaderboard.forEach(r => {
-        html += `<tr><td>${r.rank}</td><td>${r.name}</td><td>${r.form}</td><td>${r.score}/20</td><td>${r.percentage}%</td></tr>`;
+        html += `<tr><td>${r.rank}</td><td>${r.name}</td><td>${r.form}</td><td>${r.score}/27</td><td>${r.percentage}%</td></tr>`;
       });
       html += '</table>';
       box.innerHTML = html;
